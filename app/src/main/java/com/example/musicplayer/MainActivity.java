@@ -2,6 +2,7 @@ package com.example.musicplayer;
 
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
@@ -26,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     String TAG = "nicolai";
     ImageView coverImage;
     SeekBar seekBarTime;
-    ImageButton buttonPlayMusic, buttonNextSong, buttonPrevSong;
+    ImageButton buttonPlayMusic, buttonNextSong, buttonPrevSong, savedSong;
 
     MediaPlayer musicPlayer;
 
@@ -54,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buttonNextSong = findViewById(R.id.buttonNextSong);
         buttonPrevSong = findViewById(R.id.buttonPrevSong);
 
+        savedSong = findViewById(R.id.savedSong);
+
         textTitle = findViewById(R.id.textViewTitle);
         textArtist = findViewById(R.id.textViewArtist);
 
@@ -80,6 +83,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } catch (IOException e) {
 
         }
+
+        int savedSongDrawable = song.isFavorite() ? R.drawable.black_heart : R.drawable.white_heart;
+
+        savedSong.setBackgroundResource(savedSongDrawable);
         musicPlayer.start();
 
         musicPlayer.setLooping(true);
@@ -89,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buttonPlayMusic.setOnClickListener(this);
         buttonPrevSong.setOnClickListener(this);
         buttonNextSong.setOnClickListener(this);
+        savedSong.setOnClickListener(this);
         String duration = millisecondsToString(musicPlayer.getDuration());
         textDurationSong.setText(duration);
         seekBarTime.setMax(musicPlayer.getDuration());
@@ -100,9 +108,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // play next song
                 mp.reset();
                 try {
-                    Utils info = new Utils(songList,song).getInfoPlayer();
+                    Utils info = new Utils(songList, song).getInfoPlayer();
                     String path = songList.get(info.nextSong).getPath();
-                    Log.d(TAG, "onCompletion: "+path);
+                    Log.d(TAG, "onCompletion: " + path);
 
                     mp.setDataSource(path);
                     mp.prepare();
@@ -112,11 +120,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         });
-
-
-
-
-
 
 
         seekBarTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -173,17 +176,56 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         if (view.getId() == R.id.buttonPlayMusic) {
             if (musicPlayer.isPlaying()) {
-                buttonPlayMusic.setImageResource(R.drawable.play_icon);
+                buttonPlayMusic.setBackgroundResource(R.drawable.play_icon);
                 musicPlayer.pause();
             } else {
                 musicPlayer.start();
-                buttonPlayMusic.setImageResource(R.drawable.play_icon);
+                buttonPlayMusic.setBackgroundResource(R.drawable.pause_icon);
             }
+        }
+        if (view.getId() == R.id.savedSong) {
+
+            try {
+                DataBase db = new DataBase(MainActivity.this);
+                Cursor cursorDB = db.getSong(song.getPath());
+                Song songDB = null;
+                while (cursorDB.moveToNext()) {
+                    String title = cursorDB.getString(1);
+                    String artist = cursorDB.getString(2);
+                    String path = cursorDB.getString(3);
+                    boolean favorite = cursorDB.getInt(4) != 0;
+                    songDB.setTitle(title);
+                    songDB.setArtist(artist);
+                    songDB.setPath(path);
+                    songDB.setIsFavorite(favorite);
+                }
+                if (songDB != null) {
+                    if (songDB.isFavorite()) {
+                        savedSong.setBackgroundResource(R.drawable.black_heart);
+                        db.updateSong(songDB.getTitle(), songDB.getPath(), songDB.getArtist(), true);
+                        song.setIsFavorite(true);
+
+                    } else {
+                        savedSong.setBackgroundResource(R.drawable.white_heart);
+                        db.updateSong(songDB.getTitle(), songDB.getPath(), songDB.getArtist(), false);
+                        song.setIsFavorite(false);
+
+                    }
+
+                } else {
+                    db.addSong(song.getTitle(), song.getArtist(), song.getPath(), song.isFavorite());
+                }
+            }
+            catch (Exception e)
+            {
+                Log.d("nicolai",e.getMessage());
+            }
+
         }
         if (view.getId() == R.id.buttonNextSong) {
             try {
                 Intent openMusicPlayer = new Intent(MainActivity.this, MainActivity.class);
-                Utils info = new Utils(songList,song).getInfoPlayer();
+                Utils info = new Utils(songList, song).getInfoPlayer();
                 openMusicPlayer.putExtra("song", songList.get(info.nextSong));
                 openMusicPlayer.putExtra("songs", songList);
                 musicPlayer.stop();
@@ -198,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (view.getId() == R.id.buttonPrevSong) {
             try {
                 Intent openMusicPlayer = new Intent(MainActivity.this, MainActivity.class);
-                Utils info = new Utils(songList,song).getInfoPlayer();
+                Utils info = new Utils(songList, song).getInfoPlayer();
                 openMusicPlayer.putExtra("song", songList.get(info.prevSong));
                 openMusicPlayer.putExtra("songs", songList);
                 musicPlayer.stop();

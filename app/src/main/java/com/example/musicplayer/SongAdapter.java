@@ -1,6 +1,8 @@
 package com.example.musicplayer;
 
+import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,12 +28,18 @@ public class SongAdapter extends ArrayAdapter<Song> {
         TextView textViewSongTitle = convertView.findViewById(R.id.textViewSongTitle);
         TextView textViewSongArtist = convertView.findViewById(R.id.textViewSongArtist);
 
-
         Song song = getItem(position);
         textViewSongTitle.setText(song.getTitle());
         textViewSongArtist.setText(song.getArtist());
 
+        try {
+            DataBase db = new DataBase(getContext());
+            db.addSong(song.getTitle(), song.getArtist(), song.getPath(), song.isFavorite());
 
+        }catch(Exception e)
+        {
+            Log.d("nicolai",e.getMessage());
+        }
         return convertView;
     }
 }

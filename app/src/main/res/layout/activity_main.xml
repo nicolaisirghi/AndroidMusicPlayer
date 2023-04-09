@@ -28,13 +28,13 @@
         android:textColor="@color/white"
         android:textSize="16dp" />
 
+
     <ImageView
         android:id="@+id/coverImage"
         android:layout_width="300dp"
         android:layout_height="300dp"
         android:layout_marginTop="30dp"
         android:src="@drawable/album_photo"
-
         />
 
 

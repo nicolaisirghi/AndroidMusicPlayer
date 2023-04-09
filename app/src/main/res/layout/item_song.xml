@@ -12,6 +12,7 @@
         android:layout_height="50dp"
         android:src="@drawable/album_photo" />
     <LinearLayout
+        android:id="@+id/linearItemLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="60dp"
@@ -36,6 +37,7 @@
             style="bold"
             android:textSize="18dp"
             />
+
     </LinearLayout>
 
 

@@ -4,10 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="200dp"
     android:layout_gravity="center_horizontal"
-
     android:gravity="center_horizontal"
     android:orientation="vertical">
 
+<LinearLayout
+    android:layout_width="wrap_content"
+    android:gravity="center_horizontal"
+
+    android:layout_height="wrap_content">
 
     <SeekBar
         android:id="@+id/seekBarTime"
@@ -15,6 +19,15 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:progressTint="@color/white" />
+    <ImageButton
+        android:id="@+id/savedSong"
+        android:layout_width="40dp"
+        android:layout_marginTop="20dp"
+        android:layout_height="40dp"
+android:background="@drawable/white_heart"
+     />
+</LinearLayout>
+
 
     <RelativeLayout
         android:layout_width="300dp"

@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -52,7 +53,7 @@ public class MusicListActivity extends AppCompatActivity {
                 Song song = songList.get(position);
                 Intent openMusicPlayer = new Intent(MusicListActivity.this, MainActivity.class);
                 openMusicPlayer.putExtra("song", song);
-                openMusicPlayer.putExtra("songs",songList);
+                openMusicPlayer.putExtra("songs", songList);
                 startActivity(openMusicPlayer);
             }
         });
@@ -72,6 +73,8 @@ public class MusicListActivity extends AppCompatActivity {
         ContentResolver contentResolver = getContentResolver();
 
         Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        DataBase db = new DataBase(getBaseContext());
+
 
         Cursor songCursor = contentResolver.query(songUri, null, null, null, null);
 
@@ -86,15 +89,22 @@ public class MusicListActivity extends AppCompatActivity {
                 String artist = songCursor.getString(indexArtist);
                 String path = songCursor.getString(indexData);
 
-
-                    songList.add(new Song(title, artist, path));
-
-
-
+                    Cursor dataFromDB = db.getSong(path);
+//
+//                    boolean favorite = false;
+//                    while (dataFromDB.moveToNext()) {
+//                        favorite = dataFromDB.getInt(4) != 0;
+//                    }
+//                }
+//                catch (Exception e)
+//                {
+//                    Log.d("nicolai",e.getMessage());
+//                }
+                songList.add(new Song(title, artist, path, false));
 
             } while (songCursor.moveToNext());
         }
-        Collections.sort(songList,new TitleComparator());
+        Collections.sort(songList, new TitleComparator());
         songAdapter.notifyDataSetChanged();
 
 

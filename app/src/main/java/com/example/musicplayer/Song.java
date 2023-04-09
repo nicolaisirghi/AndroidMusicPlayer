@@ -8,30 +8,49 @@ public class Song implements Serializable {
     private String title;
     private String artist;
     private String path;
+    private boolean isFavorite;
 
 
-    public Song(String title, String artist, String path)  {
+    public Song(String title, String artist, String path,boolean isFavorite)  {
         this.title = title;
         this.artist = artist;
         this.path = path;
-
+        this.isFavorite =isFavorite;
 
     }
 
     public String getTitle() {
-        return title;
+        return this.title;
     }
 
 
     public String getArtist() {
-        return artist;
+        return this.artist;
     }
 
 
     public String getPath() {
-        return path;
+        return this.path;
+    }
+    public boolean isFavorite(){
+        return this.isFavorite;
+    }
+    public void setIsFavorite(boolean isFavorite)
+    {
+        this.isFavorite = isFavorite;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
 
     @Override
     public boolean equals(Object obj) {
