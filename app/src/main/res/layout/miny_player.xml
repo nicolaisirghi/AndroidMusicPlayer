@@ -80,6 +80,14 @@ android:background="@drawable/white_heart"
             android:layout_marginLeft="20dp"
             android:layout_marginTop="5dp"
             android:background="@drawable/next_song" />
+
+        <ImageButton
+            android:id="@+id/buttonMusicPlayer"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/music_icon" />
     </LinearLayout>
 </LinearLayout>
 

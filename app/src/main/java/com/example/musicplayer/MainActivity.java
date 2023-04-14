@@ -9,12 +9,14 @@ import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.IOException;
@@ -24,10 +26,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     TextView textTimeSong, textDurationSong, textTitle, textArtist;
 
-    String TAG = "nicolai";
+
     ImageView coverImage;
     SeekBar seekBarTime;
-    ImageButton buttonPlayMusic, buttonNextSong, buttonPrevSong, savedSong;
+    ImageButton buttonPlayMusic, buttonNextSong, buttonPrevSong, savedSong,buttonMusicPlayer;
 
     MediaPlayer musicPlayer;
 
@@ -55,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buttonNextSong = findViewById(R.id.buttonNextSong);
         buttonPrevSong = findViewById(R.id.buttonPrevSong);
 
+        buttonMusicPlayer =findViewById(R.id.buttonMusicPlayer);
         savedSong = findViewById(R.id.savedSong);
 
         textTitle = findViewById(R.id.textViewTitle);
@@ -69,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             coverImage = findViewById(R.id.coverImage);
             coverImage.setImageBitmap(albumCoverBitmap);
         } catch (Exception e) {
-            Log.e("nicolai", "Exception");
+            Log.e("test", "Exception");
         }
 
 
@@ -87,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int savedSongDrawable = song.isFavorite() ? R.drawable.black_heart : R.drawable.white_heart;
 
         savedSong.setBackgroundResource(savedSongDrawable);
+        buttonPlayMusic.setBackgroundResource(R.drawable.pause_icon);
         musicPlayer.start();
 
         musicPlayer.setLooping(true);
@@ -96,7 +100,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buttonPlayMusic.setOnClickListener(this);
         buttonPrevSong.setOnClickListener(this);
         buttonNextSong.setOnClickListener(this);
+        buttonMusicPlayer.setOnClickListener(this);
         savedSong.setOnClickListener(this);
+
+
+
         String duration = millisecondsToString(musicPlayer.getDuration());
         textDurationSong.setText(duration);
         seekBarTime.setMax(musicPlayer.getDuration());
@@ -105,13 +113,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         musicPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                // play next song
                 mp.reset();
                 try {
                     Utils info = new Utils(songList, song).getInfoPlayer();
                     String path = songList.get(info.nextSong).getPath();
-                    Log.d(TAG, "onCompletion: " + path);
-
+                    Log.d("test", "onCompletion: " + path);
                     mp.setDataSource(path);
                     mp.prepare();
                     mp.start();
@@ -173,6 +179,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId()==android.R.id.home)
+        {finish();
+            if(musicPlayer.isPlaying())
+            {
+                musicPlayer.stop();
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onClick(View view) {
         if (view.getId() == R.id.buttonPlayMusic) {
             if (musicPlayer.isPlaying()) {
@@ -184,44 +202,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         if (view.getId() == R.id.savedSong) {
+            String title = song.getTitle();
+            String path = song.getPath();
+            String artist = song.getArtist();
+            DataBase db = new DataBase(MainActivity.this);
+            if (!song.isFavorite()) {
+                savedSong.setBackgroundResource(R.drawable.black_heart);
 
-            try {
-                DataBase db = new DataBase(MainActivity.this);
-                Cursor cursorDB = db.getSong(song.getPath());
-                Song songDB = null;
-                while (cursorDB.moveToNext()) {
-                    String title = cursorDB.getString(1);
-                    String artist = cursorDB.getString(2);
-                    String path = cursorDB.getString(3);
-                    boolean favorite = cursorDB.getInt(4) != 0;
-                    songDB.setTitle(title);
-                    songDB.setArtist(artist);
-                    songDB.setPath(path);
-                    songDB.setIsFavorite(favorite);
-                }
-                if (songDB != null) {
-                    if (songDB.isFavorite()) {
-                        savedSong.setBackgroundResource(R.drawable.black_heart);
-                        db.updateSong(songDB.getTitle(), songDB.getPath(), songDB.getArtist(), true);
-                        song.setIsFavorite(true);
+                db.addSong(title,artist,path,true);
+                song.setIsFavorite(true);
+            } else {
+                savedSong.setBackgroundResource(R.drawable.white_heart);
+                int result = db.deleteSong(path);
+                Log.d("test",String.valueOf(result));
+                song.setIsFavorite(false);
 
-                    } else {
-                        savedSong.setBackgroundResource(R.drawable.white_heart);
-                        db.updateSong(songDB.getTitle(), songDB.getPath(), songDB.getArtist(), false);
-                        song.setIsFavorite(false);
-
-                    }
-
-                } else {
-                    db.addSong(song.getTitle(), song.getArtist(), song.getPath(), song.isFavorite());
-                }
-            }
-            catch (Exception e)
-            {
-                Log.d("nicolai",e.getMessage());
             }
 
         }
+
+
         if (view.getId() == R.id.buttonNextSong) {
             try {
                 Intent openMusicPlayer = new Intent(MainActivity.this, MainActivity.class);
@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 finish();
                 startActivity(openMusicPlayer);
             } catch (Exception e) {
-                Log.d("nicolai", e.getMessage());
+                Log.d("test", e.getMessage());
             }
 
         }
@@ -247,8 +247,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 finish();
                 startActivity(openMusicPlayer);
             } catch (Exception e) {
-                Log.d("nicolai", e.getMessage());
+                Log.d("test", e.getMessage());
             }
+        }
+
+        if(view.getId()==R.id.buttonMusicPlayer)
+        { Intent openMusicPlayer = new Intent(MainActivity.this, MainActivity.class);
+            musicPlayer.stop();
+            finish();
+            startActivity(openMusicPlayer);
+
         }
     }
 }

@@ -40,18 +40,6 @@ public class Song implements Serializable {
         this.isFavorite = isFavorite;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setArtist(String artist) {
-        this.artist = artist;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {

@@ -60,7 +60,8 @@ public class DataBase extends SQLiteOpenHelper {
 
     Cursor getSong(String path) {
         try {
-            String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_PATH + "=" + path;
+            String query = "SELECT * FROM " + TABLE_NAME + " WHERE " +
+                    COLUMN_PATH + "='" + path+"'";
             SQLiteDatabase db = this.getReadableDatabase();
 
             Cursor cursor = null;
@@ -71,25 +72,20 @@ public class DataBase extends SQLiteOpenHelper {
             }
             return cursor;
         } catch (Exception e) {
-            Log.d("nicolai", e.getMessage());
+            Log.d("test", e.getMessage());
         }
         return null;
     }
-    void updateSong(String title,String path,String artist,boolean isFavorite)
-    {
-        try {
-            SQLiteDatabase db = this.getWritableDatabase();
-            ContentValues cv = new ContentValues();
-            cv.put(COLUMN_TITLE, title);
-            cv.put(COLUMN_ARTIST, artist);
-            cv.put(COLUMN_PATH, path);
-            cv.put(COLUMN_FAVORITE, isFavorite);
 
-            db.update(TABLE_NAME, cv, "song_path=?", new String[]{path});
+
+    Integer deleteSong(String path)
+    {
+        try{
+            SQLiteDatabase db = this.getWritableDatabase();
+            return db.delete(TABLE_NAME,"song_path = ?",new String[]{path});
+        }catch (Exception e ){
+            Log.d("test",e.getMessage());
         }
-        catch (Exception e)
-        {
-            Log.d("nicolai",e.getMessage());
-        }
+        return -1;
     }
 }

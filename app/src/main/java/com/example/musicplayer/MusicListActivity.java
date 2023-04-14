@@ -73,7 +73,7 @@ public class MusicListActivity extends AppCompatActivity {
         ContentResolver contentResolver = getContentResolver();
 
         Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        DataBase db = new DataBase(getBaseContext());
+        DataBase db = new DataBase(MusicListActivity.this);
 
 
         Cursor songCursor = contentResolver.query(songUri, null, null, null, null);
@@ -88,19 +88,13 @@ public class MusicListActivity extends AppCompatActivity {
                 String title = songCursor.getString(indexTitle);
                 String artist = songCursor.getString(indexArtist);
                 String path = songCursor.getString(indexData);
-
-                    Cursor dataFromDB = db.getSong(path);
-//
-//                    boolean favorite = false;
-//                    while (dataFromDB.moveToNext()) {
-//                        favorite = dataFromDB.getInt(4) != 0;
-//                    }
-//                }
-//                catch (Exception e)
-//                {
-//                    Log.d("nicolai",e.getMessage());
-//                }
-                songList.add(new Song(title, artist, path, false));
+                Cursor cursor =  db.getSong(path);
+                boolean isFavorite=false ;
+                while (cursor.moveToNext())
+                {
+                    isFavorite = cursor.getInt(4) !=0 ;
+                }
+                songList.add(new Song(title, artist, path, isFavorite));
 
             } while (songCursor.moveToNext());
         }

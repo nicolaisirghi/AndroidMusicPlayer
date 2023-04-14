@@ -9,7 +9,6 @@
     android:orientation="vertical"
     android:padding="20dp"
     tools:context=".MainActivity">
-
     <TextView
         android:id="@+id/textViewTitle"
         android:layout_width="wrap_content"
